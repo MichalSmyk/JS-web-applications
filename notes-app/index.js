@@ -1,13 +1,29 @@
-const NotesModel = require("./notesModel");
-const NotesView = require('./notesView');
+const express = require('express');
+const cors = require('cors');
+const app = express();
+const PORT = 3000;
 
-console.log("The notes app is running")
-console.log(new NotesModel())
+app.use(cors())
 
-const model = new NotesModel();
+let notes = [
+  'This note is coming from the server'
+];
 
-// model.addNote('This is an example note');
+app.use(express.json());
 
-const view = new NotesView(model);
+app.get('/notes', (_req, res) => {
+  res.send(JSON.stringify(notes));
+});
 
-view.displayNotes();
+app.post('/notes', (req, res) => {
+  notes.push(req.body.content)
+  res.send(JSON.stringify(notes));
+});
+
+app.delete('/notes', (req, res) => {
+  notes = [];
+  res.send(JSON.stringify(notes))
+});
+
+app.listen(PORT);
+console.log(`Listening on ${PORT}`)
