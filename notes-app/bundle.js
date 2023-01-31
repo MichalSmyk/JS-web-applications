@@ -32,8 +32,19 @@
         constructor(model2) {
           this.model = model2;
           this.mainContainerEl = document.querySelector("#main-container");
+          document.querySelector("#add-note-button").addEventListener("click", () => {
+            const newNote = document.querySelector("#add-note").value;
+            this.addNewNote(newNote);
+          });
+        }
+        addNewNote(newNote) {
+          this.model.addNote(newNote);
+          this.displayNotes();
         }
         displayNotes() {
+          document.querySelectorAll(".note").forEach((element) => {
+            element.remove();
+          });
           const notes = this.model.getNotes();
           notes.forEach((note) => {
             const noteEl = document.createElement("div");
@@ -53,7 +64,6 @@
   console.log("The notes app is running");
   console.log(new NotesModel());
   var model = new NotesModel();
-  model.addNote("This is an example note");
   var view = new NotesView(model);
   view.displayNotes();
 })();
