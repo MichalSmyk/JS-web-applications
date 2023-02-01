@@ -2,6 +2,9 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 const PORT = 3000;
+const client = new NotesClient();
+const model = new NotesModel();
+const view = new NotesView(model, client);
 
 app.use(cors())
 

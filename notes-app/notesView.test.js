@@ -1,30 +1,38 @@
 /**
  * @jest-environment jsdom
  */
-
+require("jest-fetch-mock").enableMocks();
 const fs = require('fs');
 const NotesModel = require('./notesModel');
 const NotesView = require('./notesView'); 
+const NotesClient = require('./notesClient')
+
+jest.mock("./notesClient.js");
 
 
 describe('notesView', () => {
+    let model;
+    let client;
+    let view;
+
+    beforeEach(() => {
+        NotesClient.mockClear();
+        document.body.innerHTML = fs.readFileSync("./index.html");
+    
+        client = new NotesClient();
+        model = new NotesModel();
+        view = new NotesView(model, client);
+      });
+    
 
     it('shows two notes', () => {
-        document.body.innerHTML = fs.readFileSync('./index.html');
-        
-        const model = new NotesModel();
-        const view = new NotesView(model);
-        
-        model.addNote('first note');
+       model.addNote('first note');
         model.addNote('another note');
         view.displayNotes();
         expect(document.querySelectorAll('div.note').length).toEqual(2);
     });
     it('adds user input ( as note) to the page with a button', () => {
-        document.body.innerHTML = fs.readFileSync('./index.html');
-
-        const model = new NotesModel();
-        const view = new NotesView(model);
+       
 
         const input = document.querySelector('#add-note');
         input.value = 'This is my new note';
@@ -36,10 +44,7 @@ describe('notesView', () => {
         expect(document.querySelectorAll('div.note')[0].textContent).toEqual('This is my new note');
     });
     it('clears notes before displaying new note', () => {
-        document.body.innerHTML = fs.readFileSync('./index.html');
-
-        const model = new NotesModel();
-        const view = new NotesView(model);
+        
 
         model.addNote('first');
         model.addNote('second');
@@ -49,4 +54,16 @@ describe('notesView', () => {
 
         expect(document.querySelectorAll('div.note').length).toEqual(2);
     });
+    it("displayNotesFromApi loads notes from server and displays the received notes", (done) => {
+        client.loadNotes.mockImplementation((callback) => {
+          callback(["Feed lawn", "Mow dog"]);
+        });
+        view.displayNotesFromApi();
+        const notes = document.querySelectorAll("div.note");
+        expect(notes.length).toBe(2);
+        //expect(notes[0].innerText).toBe("Feed lawn");
+        expect(client.loadNotes).toHaveBeenCalled();
+        expect(model.getNotes()).toEqual(["Feed lawn", "Mow dog"]);
+        done();
+      });
 });
