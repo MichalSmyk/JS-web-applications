@@ -61,9 +61,16 @@ describe('notesView', () => {
         view.displayNotesFromApi();
         const notes = document.querySelectorAll("div.note");
         expect(notes.length).toBe(2);
-        //expect(notes[0].innerText).toBe("Feed lawn");
+        expect(notes[0].textContent).toBe("Feed lawn");
         expect(client.loadNotes).toHaveBeenCalled();
         expect(model.getNotes()).toEqual(["Feed lawn", "Mow dog"]);
         done();
+      });
+      it('displays error message',() => {
+        view.displayError("Oops, something went wrong!");
+
+        const error = document.querySelectorAll("p.error");
+
+        expect(error[0].innerText).toBe("Oops, something went wrong!");
       });
 });
